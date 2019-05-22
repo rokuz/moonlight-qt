@@ -15,6 +15,7 @@ public:
     static QString getDataFilePath(QString fileName);
 
     static void initialize(bool portable);
+    static void initializeWithPath(const QString & path);
 
 private:
     static QString s_LogDir;

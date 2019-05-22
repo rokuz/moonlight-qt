@@ -249,8 +249,17 @@ int main(int argc, char *argv[])
         Path::initialize(true);
     }
     else {
-        // Initialize paths for standard installation
-        Path::initialize(false);
+#ifdef Q_OS_DARWIN
+      // On MacOS we store everything in ~/.moonlight
+      const QString path = QDir::homePath() + "/.moonlight";
+      QSettings::setDefaultFormat(QSettings::IniFormat);
+      QSettings::setPath(QSettings::IniFormat, QSettings::UserScope, path);
+      QSettings::setPath(QSettings::IniFormat, QSettings::SystemScope, path);
+      Path::initializeWithPath(path);
+#else
+      // Initialize paths for standard installation
+      Path::initialize(false);
+#endif
     }
 
 #ifdef USE_CUSTOM_LOGGER

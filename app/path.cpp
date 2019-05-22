@@ -62,17 +62,16 @@ QString Path::getDataFilePath(QString fileName)
 void Path::initialize(bool portable)
 {
     if (portable) {
-        s_LogDir = QDir::currentPath();
-        s_BoxArtCacheDir = QDir::currentPath() + "/boxart";
+        initializeWithPath(QDir::currentPath());
     }
     else {
-#ifdef Q_OS_DARWIN
-        // On macOS, $TMPDIR is some random folder under /var/folders/ that nobody can
-        // easily find, so use the system's global tmp directory instead.
-        s_LogDir = "/tmp";
-#else
         s_LogDir = QDir::tempPath();
-#endif
         s_BoxArtCacheDir = QStandardPaths::writableLocation(QStandardPaths::CacheLocation) + "/boxart";
     }
+}
+
+void Path::initializeWithPath(const QString & path)
+{
+    s_LogDir = path + "/log";
+    s_BoxArtCacheDir = path + "/boxart";
 }
