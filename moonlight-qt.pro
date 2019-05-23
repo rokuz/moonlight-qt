@@ -17,7 +17,8 @@ win32:!winrt {
 }
 
 # Support debug and release builds from command line for CI
-CONFIG += debug_and_release
+#CONFIG += debug_and_release
+CONFIG += app_bundle
 
 # Run our compile tests
 load(configure)

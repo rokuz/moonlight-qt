@@ -1,5 +1,5 @@
 # Support debug and release builds from command line for CI
-CONFIG += debug_and_release
+#CONFIG += debug_and_release
 
 # Ensure symbols are always generated
 CONFIG += force_debug_info
