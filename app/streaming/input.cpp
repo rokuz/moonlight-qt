@@ -297,40 +297,42 @@ void SdlInputHandler::handleKeyEvent(SDL_KeyboardEvent* event)
         return;
     }
 
+    SDL_Keysym keysym = m_KeyboardMappings.remap(event->keysym);
+
     // Set modifier flags
     modifiers = 0;
-    if (event->keysym.mod & KMOD_CTRL) {
+    if (keysym.mod & KMOD_CTRL) {
         modifiers |= MODIFIER_CTRL;
     }
-    if (event->keysym.mod & KMOD_ALT) {
+    if (keysym.mod & KMOD_ALT) {
         modifiers |= MODIFIER_ALT;
     }
-    if (event->keysym.mod & KMOD_SHIFT) {
+    if (keysym.mod & KMOD_SHIFT) {
         modifiers |= MODIFIER_SHIFT;
     }
 
     // Set keycode. We explicitly use scancode here because GFE will try to correct
     // for AZERTY layouts on the host but it depends on receiving VK_ values matching
     // a QWERTY layout to work.
-    if (event->keysym.scancode >= SDL_SCANCODE_1 && event->keysym.scancode <= SDL_SCANCODE_9) {
+    if (keysym.scancode >= SDL_SCANCODE_1 && keysym.scancode <= SDL_SCANCODE_9) {
         // SDL defines SDL_SCANCODE_0 > SDL_SCANCODE_9, so we need to handle that manually
-        keyCode = (event->keysym.scancode - SDL_SCANCODE_1) + VK_0 + 1;
+        keyCode = (keysym.scancode - SDL_SCANCODE_1) + VK_0 + 1;
     }
-    else if (event->keysym.scancode >= SDL_SCANCODE_A && event->keysym.scancode <= SDL_SCANCODE_Z) {
-        keyCode = (event->keysym.scancode - SDL_SCANCODE_A) + VK_A;
+    else if (keysym.scancode >= SDL_SCANCODE_A && keysym.scancode <= SDL_SCANCODE_Z) {
+        keyCode = (keysym.scancode - SDL_SCANCODE_A) + VK_A;
     }
-    else if (event->keysym.scancode >= SDL_SCANCODE_F1 && event->keysym.scancode <= SDL_SCANCODE_F12) {
-        keyCode = (event->keysym.scancode - SDL_SCANCODE_F1) + VK_F1;
+    else if (keysym.scancode >= SDL_SCANCODE_F1 && keysym.scancode <= SDL_SCANCODE_F12) {
+        keyCode = (keysym.scancode - SDL_SCANCODE_F1) + VK_F1;
     }
-    else if (event->keysym.scancode >= SDL_SCANCODE_F13 && event->keysym.scancode <= SDL_SCANCODE_F24) {
-        keyCode = (event->keysym.scancode - SDL_SCANCODE_F13) + VK_F13;
+    else if (keysym.scancode >= SDL_SCANCODE_F13 && keysym.scancode <= SDL_SCANCODE_F24) {
+        keyCode = (keysym.scancode - SDL_SCANCODE_F13) + VK_F13;
     }
-    else if (event->keysym.scancode >= SDL_SCANCODE_KP_1 && event->keysym.scancode <= SDL_SCANCODE_KP_9) {
+    else if (keysym.scancode >= SDL_SCANCODE_KP_1 && keysym.scancode <= SDL_SCANCODE_KP_9) {
         // SDL defines SDL_SCANCODE_KP_0 > SDL_SCANCODE_KP_9, so we need to handle that manually
-        keyCode = (event->keysym.scancode - SDL_SCANCODE_KP_1) + VK_NUMPAD0 + 1;
+        keyCode = (keysym.scancode - SDL_SCANCODE_KP_1) + VK_NUMPAD0 + 1;
     }
     else {
-        switch (event->keysym.scancode) {
+        switch (keysym.scancode) {
             case SDL_SCANCODE_BACKSPACE:
                 keyCode = 0x08;
                 break;
@@ -505,10 +507,13 @@ void SdlInputHandler::handleKeyEvent(SDL_KeyboardEvent* event)
             case SDL_SCANCODE_NONUSBACKSLASH:
                 keyCode = 0xE2;
                 break;
+            case SDL_SCANCODE_UNKNOWN:
+                keyCode = 0x0;
+                break;
             default:
                 SDL_LogInfo(SDL_LOG_CATEGORY_APPLICATION,
                             "Unhandled button event: %d",
-                             event->keysym.scancode);
+                             keysym.scancode);
                 return;
         }
     }

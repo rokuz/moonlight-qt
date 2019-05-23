@@ -101,3 +101,68 @@ void MappingManager::addMapping(SdlGamepadMapping& mapping)
 {
     m_Mappings[mapping.getGuid()] = mapping;
 }
+
+KeyboardMappingManager::KeyboardMappingManager()
+{
+    // Built-in profiles.
+    static KeyboardMappingProfile s_MacToWindowsBuiltInProfile;
+    if (s_MacToWindowsBuiltInProfile.m_Mappings.empty()) {
+        s_MacToWindowsBuiltInProfile.m_Name = "Default MacOS -> Windows";
+        // Command+Space -> Shift+Alt (language switch)
+        s_MacToWindowsBuiltInProfile.setMapping(KeyboardMapping(SDL_SCANCODE_SPACE, KMOD_LGUI),
+                                                KeyboardMapping(SDL_SCANCODE_UNKNOWN, KMOD_SHIFT | KMOD_ALT));
+        s_MacToWindowsBuiltInProfile.setMapping(KeyboardMapping(SDL_SCANCODE_SPACE, KMOD_RGUI),
+                                                KeyboardMapping(SDL_SCANCODE_UNKNOWN, KMOD_SHIFT | KMOD_ALT));
+        // Command+<Key> -> Ctrl+<Key> (copy, paste, etc.)
+        s_MacToWindowsBuiltInProfile.setMapping(KeyboardMapping(SDL_SCANCODE_UNKNOWN, KMOD_LGUI),
+                                                KeyboardMapping(SDL_SCANCODE_UNKNOWN, KMOD_LCTRL));
+        s_MacToWindowsBuiltInProfile.setMapping(KeyboardMapping(SDL_SCANCODE_UNKNOWN, KMOD_RGUI),
+                                                KeyboardMapping(SDL_SCANCODE_UNKNOWN, KMOD_RCTRL));
+    }
+    m_builtInProfiles[ProfileKey::DefaultMacToWindows] = &s_MacToWindowsBuiltInProfile;
+
+    reload();
+}
+
+void KeyboardMappingManager::reload()
+{
+    //TODO: add serialization
+#ifdef Q_OS_DARWIN
+    m_CurrentProfile = *m_builtInProfiles[ProfileKey::DefaultMacToWindows];
+#endif
+}
+
+void KeyboardMappingManager::setMapping(const KeyboardMapping & from,
+                                        const KeyboardMapping & to)
+{
+    m_CurrentProfile.setMapping(from, to);
+}
+
+SDL_Keysym KeyboardMappingManager::remap(SDL_Keysym m)
+{
+    const KeyboardMapping key(m.scancode, m.mod);
+
+    // Full matching
+    if (m_CurrentProfile.m_Mappings.contains(key)) {
+        KeyboardMapping mapping = m_CurrentProfile.m_Mappings[key];
+        m.scancode = mapping.m_Scancode;
+        m.sym = SDL_GetKeyFromScancode(m.scancode);
+        m.mod = mapping.m_Mod;
+        return m;
+    }
+
+    // Modifier only matching
+    const KeyboardMapping keyMod(SDL_SCANCODE_UNKNOWN, m.mod);
+    if (m_CurrentProfile.m_Mappings.contains(keyMod)) {
+        KeyboardMapping mapping = m_CurrentProfile.m_Mappings[keyMod];
+        m.mod = mapping.m_Mod;
+        return m;
+    }
+
+    return m;
+}
+
+void KeyboardMappingManager::save()
+{
+    //TODO: add serialization
+}

@@ -1,6 +1,7 @@
 #pragma once
 
 #include "settings/streamingpreferences.h"
+#include "settings/mappingmanager.h"
 #include "backend/computermanager.h"
 
 #include <SDL.h>
@@ -105,6 +106,8 @@ private:
     int m_NumFingersDown;
     int m_StreamWidth;
     int m_StreamHeight;
+
+    KeyboardMappingManager m_KeyboardMappings;
 
     static const int k_ButtonMap[];
 };
